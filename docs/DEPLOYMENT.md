@@ -1,9 +1,9 @@
-# Deploying: Render (API) + Cloudflare Pages (website) + Supabase (database and files)
+# Deploying: Render (API) + Cloudflare Worker (website) + Supabase (database and files)
 
 ```
-Browser ──► Cloudflare Pages   static React site (frontend repo)
+Browser ──► Cloudflare Worker   the built React site, on yourdomain.com AND *.yourdomain.com (one per church)
    │
-   └──────► Render web service  Django + Channels in Docker (this repo, `prod` branch)
+   └──────► Render web service  Django + Channels in Docker (this repo, `prod` branch), e.g. api.yourdomain.com
                  ├─► Supabase Postgres   all data   (Session pooler)
                  ├─► Supabase Storage    logos, avatars (public bucket, S3 API)
                  └─► Render Key Value    Redis for live chat
@@ -37,7 +37,8 @@ Do the steps in this order; each one produces a value the next needs.
    |---|---|
    | `DATABASE_URL` | from Supabase step 2 |
    | `SUPABASE_PROJECT_REF`, `SUPABASE_S3_KEY_ID`, `SUPABASE_S3_SECRET` | from Supabase step 4 |
-   | `FRONTEND_URL`, `CORS_ALLOWED_ORIGINS` | your Pages address, e.g. `https://friends-portal.pages.dev` (no trailing slash). Not known yet: put a placeholder and come back after step 3. |
+   | `TENANT_BASE_DOMAIN` | your domain, e.g. `friends.example.org`. A church with the slug `kaimosi` is then served at `kaimosi.friends.example.org`. |
+   | `FRONTEND_URL`, `CORS_ALLOWED_ORIGINS` | the platform's own site, e.g. `https://friends.example.org` (no trailing slash). Church subdomains are allowed automatically. |
    | `API_PUBLIC_URL` | the web service's URL, e.g. `https://friends-portal-api.onrender.com` |
    | `EMAIL_HOST`, `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`, `DEFAULT_FROM_EMAIL` | your SMTP account |
    | `GOOGLE_CLIENT_ID` | optional; leave blank to hide Google sign-in |
@@ -56,37 +57,49 @@ Do the steps in this order; each one produces a value the next needs.
 The `starter` plan is the smallest one that keeps the service awake, which WebSockets and the live studio need.
 The free plan sleeps after inactivity and would drop chat connections.
 
-## 3. Cloudflare Pages
+## 3. Cloudflare Worker (the website, with church subdomains)
 
-1. **Workers & Pages → Create → Pages → Connect to Git**, pick the frontend repo, production branch `prod`.
-2. Build settings: framework **Vite** (or: build command `npm run build`, output directory `dist`). Node 22 is set by `.node-version`.
-3. Environment variables (Production):
+Cloudflare Pages can't serve a wildcard hostname, so the site is a Worker with static assets. One Worker answers
+`yourdomain.com` and every `*.yourdomain.com`. The browser then calls the API on its own address; the backend learns
+which church is meant from the `Origin` of the calling site, so the Worker doesn't need to proxy anything.
 
-   | Variable | Value |
-   |---|---|
-   | `VITE_API_URL` | the Render URL, e.g. `https://friends-portal-api.onrender.com` (no trailing slash) |
-   | `VITE_PLATFORM_NAME`, `VITE_PLATFORM_SUBTITLE`, `VITE_PLATFORM_TAGLINE` | branding |
+1. Your domain's DNS must be on Cloudflare. Add two **proxied** (orange cloud) records:
+   - `A` `@` → `192.0.2.1` (a placeholder address: Cloudflare answers before it is used)
+   - `A` `*` → `192.0.2.1`
+   Cloudflare's free certificate covers `*.yourdomain.com` (one level), which is what church subdomains need.
+2. In the frontend repo, edit `wrangler.jsonc`: replace `yourdomain.com` (twice) with your domain, and commit.
+3. **Workers & Pages → Create → Import a repository** (Workers Builds), branch `prod`. Settings:
+   - Build command: `npm run build`
+   - Deploy command: `npx wrangler deploy`
+   - **Build variables** (baked into the site at build time; change one and rebuild):
 
-   These are baked in at build time, so changing one needs a new build.
-4. Deploy. `public/_redirects` makes deep links such as `/c/friends-church` and page refreshes work.
-5. Go back to Render and set `FRONTEND_URL` and `CORS_ALLOWED_ORIGINS` to the real Pages address, then redeploy.
-   If you later add a custom domain, list both addresses in `CORS_ALLOWED_ORIGINS`, comma-separated.
-6. Google sign-in: add the Pages address under **Authorized JavaScript origins** in Google Cloud.
+     | Variable | Value |
+     |---|---|
+     | `VITE_API_URL` | the API address, e.g. `https://api.example.org` (or the `onrender.com` URL), no trailing slash |
+     | `VITE_TENANT_BASE_DOMAIN` | the same domain as `TENANT_BASE_DOMAIN` on Render |
+     | `VITE_PLATFORM_NAME`, `VITE_PLATFORM_SUBTITLE`, `VITE_PLATFORM_TAGLINE` | branding |
+     | `NODE_VERSION` | `22` |
+4. Optional, tidier: add `api.yourdomain.com` as a custom domain on the Render service (Render shows the CNAME to
+   create; leave that record **DNS only**, not proxied), then use it as `VITE_API_URL` and `API_PUBLIC_URL`.
+   `api` can't be a church name; it is reserved.
+5. Google sign-in: add `https://yourdomain.com` under **Authorized JavaScript origins**. Google doesn't accept
+   wildcards, so sign-in with Google works on the platform site only; churches use email and password.
+
+To deploy from your own machine instead: `npm run deploy` (needs `npx wrangler login` once).
 
 ## 4. Check it works
 
 - `https://<api>/health/` answers `ok`.
-- Open the Pages site, register, and confirm the email arrives with the logo and a working link.
+- Open `https://yourdomain.com`, register, and confirm the email arrives with the logo and a working link.
 - Upload an avatar on the account page; the picture should load from `…supabase.co/storage/v1/object/public/media/…`.
 - Open a church's Messages page and send a message from two browsers (this proves Redis and WebSockets).
 
 ## Limits to know about
 
-- **Church subdomains are off.** Cloudflare Pages can't serve `*.yourdomain` wildcard hostnames, so leave
-  `TENANT_BASE_DOMAIN` and `VITE_TENANT_BASE_DOMAIN` unset. Churches live at `/c/<slug>`. Subdomains would need the
-  website served from a Cloudflare Worker or another host with a wildcard certificate.
+- **A church's subdomain exists as soon as the church is active.** Nothing to configure per church. The names `www`,
+  `api`, `admin`, `app` and a few others are reserved and can't be used as church addresses.
+- **Sign-in is per address.** The browser keeps the login for the exact site it was made on, so a person who belongs to
+  two churches signs in separately on each subdomain. Fixing that needs a shared sign-in design (not built yet).
 - **Live studio uses the API server's CPU** (ffmpeg relays each broadcast). One or two broadcasts at a time are fine on
   `starter`; plan a larger instance or a separate worker before many churches stream at once.
 - **Backups:** Supabase takes daily backups on paid plans only. On the free plan, schedule your own `pg_dump`.
-- **Sign-in is per site.** Tokens are stored in the browser for the Pages origin, so one sign-in covers the whole site
-  while churches share the `/c/<slug>` layout.
