@@ -97,14 +97,19 @@ class EmailVerificationTests(TestCase):
         mark_verified(u)
         self.assertIn('already confirmed', client_for(u).post('/api/v1/auth/verify-email/resend/').data['detail'])
 
-    def test_changing_email_requires_reconfirming(self):
+    def test_email_is_read_only_in_the_profile(self):
         u = user('dan')
-        r = client_for(u).patch('/api/v1/auth/me/', {'email': 'dan2@example.com', 'first_name': 'Daniel'}, format='json')
-        self.assertEqual(r.status_code, 200)
-        self.assertEqual((r.data['email'], r.data['first_name'], r.data['email_verified']), ('dan2@example.com', 'Daniel', False))
-        self.assertEqual(mail.outbox[0].to, ['dan2@example.com'])
-        user('taken', email='taken@example.com')
-        self.assertEqual(client_for(u).patch('/api/v1/auth/me/', {'email': 'TAKEN@example.com'}, format='json').status_code, 400)
+        original = u.email
+        c = client_for(u)
+        r = c.patch('/api/v1/auth/me/', {'email': 'dan2@example.com', 'first_name': 'Daniel'}, format='json')
+        self.assertEqual(r.status_code, 400)
+        self.assertIn('email', r.data)
+        u.refresh_from_db()
+        self.assertEqual((u.email, u.first_name), (original, ''))  # nothing was saved, including the name
+        self.assertEqual(len(mail.outbox), 0)
+        # Sending the unchanged address (any casing) is harmless: older clients still do it.
+        r = c.patch('/api/v1/auth/me/', {'email': original.upper(), 'first_name': 'Daniel'}, format='json')
+        self.assertEqual((r.status_code, r.data['first_name'], r.data['email']), (200, 'Daniel', original))
 
     def test_username_is_derived_at_signup_and_editable_in_profile(self):
         user('ann2', email='other@example.com')
