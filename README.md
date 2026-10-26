@@ -86,12 +86,12 @@ python -m venv venv
 source venv/bin/activate  # On Windows use: venv\Scripts\activate
 
 # Install Core Libraries
-pip install django djangorestframework channels channels-redis django-cors-headers djangorestframework-simplejwt
+pip install -r requirements.txt
 
 # Apply Database Schemas & Seed System
-python manage.py makemigrations
 python manage.py migrate
-python manage.py createsuperuser
+python manage.py createsuperuser          # the system admin (Django admin at /admin/)
+python manage.py platform add-admin --email someone@example.org   # a platform admin (in-app dashboard)
 
 # Fire up Django Local Server Engine
 python manage.py runserver 8000
@@ -102,16 +102,16 @@ python manage.py runserver 8000
 
 ### 2. Frontend Interface Configuration (React)
 
-Open a new system terminal window to launch your UI components:
+Open a new system terminal window to initialize and launch your UI components:
 
 ```bash
 cd frontend
+npm create vite@latest . -- --template react
 npm install
 npm install react-player
 
 # Spin up Vite local server process
 npm run dev
-
 ```
 
 Your UI should now be reachable locally at `http://localhost:5173`.
@@ -135,11 +135,12 @@ The portal utilizes granular checking logic matching traditional Quaker organiza
 
 All standard data transmission formats default to strict application JSON outputs:
 
-* `POST /api/token/` - Acquires standard secure JWT validation access keys.
+* `POST /api/v1/auth/login/` - Obtain JWT access + refresh tokens (response includes the user's role).
+* `POST /api/v1/auth/refresh/`, `POST /api/v1/auth/logout/`, `GET /api/v1/auth/me/`
 * `GET /api/schedule/` - Fetches calendar events and connection links.
 * `GET /api/query/active/` - Returns the designated active spiritual query of the current week.
 * `GET /api/songs/?search={query}` - Returns a subset array of matching songs filtered by number or string terms.
-* `WS /ws/chat/` - Secure WebSocket handshake routing point connection for real-time chat sync.
+* `WS /ws/chat/<room_name>/?token=<access_token>` - Real-time chat (Members and above).
 
 ---
 

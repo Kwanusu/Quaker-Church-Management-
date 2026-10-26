@@ -25,12 +25,17 @@ MANIFEST
 
 # Virtual Environment
 venv/
+.venv/
+myenv/
 env/
 ENV/
 env.bak/
 venv.bak/
 
 # Django
+media/
+.ruff_cache/
+sent_emails/
 *.log
 local_settings.py
 db.sqlite3

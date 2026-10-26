@@ -150,12 +150,14 @@ DELETE /api/v1/schedules/:id/         # Delete schedule (Clerk only)
 
 ### Connection
 ```
-WS /ws/chat/<room_name>/
+WS /ws/chat/<room_name>/?token=<access_token>
 ```
 
-**Headers**:
-- Authorization: JWT token required
-- User must have `Member` role or higher
+**Auth**:
+- Browsers can't set headers on WebSockets, so pass the JWT access token as `?token=`
+- User must have `Member` role or higher (close code 4401 = not logged in, 4403 = not a member)
+- Origin must match `DJANGO_ALLOWED_HOSTS`
+- Max 2000 chars/message, 30 messages/minute per connection
 
 ### Message Format
 

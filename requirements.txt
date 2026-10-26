@@ -1,10 +1,18 @@
-Django==6.0.3
-djangorestframework==3.14.0
-djangorestframework-simplejwt==5.5.1
-django-cors-headers==4.3.1
-channels==4.0.0
-channels-redis==4.1.0
-daphne==4.1.2
-psycopg2-binary==2.9.9
-redis==5.0.1
-python-dotenv==1.0.0
+Django>=6.0.3,<6.1
+djangorestframework>=3.16,<3.19
+djangorestframework-simplejwt>=5.5.1,<6
+django-cors-headers>=4.9,<5
+channels>=4.3,<5
+channels-redis>=4.3,<5
+daphne>=4.2,<5
+redis>=5.2,<9
+python-dotenv>=1.0,<2
+Pillow>=10.4,<13  # church logo uploads
+drf-spectacular>=0.28,<0.31
+google-auth>=2.30,<3   # verifies Google sign-in tokens
+requests>=2.32,<3
+cryptography>=43   # encrypts church stream keys at rest
+openpyxl>=3.1,<4   # Excel (.xlsx) hymn imports
+# PostgreSQL driver (only needed when DATABASE_URL/DB_ENGINE points at Postgres).
+# 2.9.9 had no wheels for Python 3.13+/3.14 and failed to install.
+psycopg2-binary>=2.9.11,<3

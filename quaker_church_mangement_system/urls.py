@@ -1,26 +1,33 @@
 """
 URL configuration for quaker_church_mangement_system project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/6.0/topics/http/urls/
 """
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from meeting.views import SongViewSet, QueryViewSet, ScheduleViewSet, CustomTokenObtainPairView
+from django.urls import include, path
 
-# DRF Router configuration
-router = DefaultRouter()
-router.register(r'songs', SongViewSet)
-router.register(r'queries', QueryViewSet)
-router.register(r'schedules', ScheduleViewSet)
+from churches.views import tenant_info
+from drf_spectacular.views import (
+    SpectacularAPIView,
+    SpectacularRedocView,
+    SpectacularSwaggerView,
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('core.urls')),
-    path('api/v1/', include(router.urls)),
-    path('api/v1/auth/login/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/v1/auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/v1/tenant/', tenant_info, name='tenant-info'),
+    path('api/v1/onboarding/', include('onboarding.urls')),
+    path('api/v1/platform/', include('platformadmin.urls')),
+    path('api/v1/', include('meeting.urls')),
     path('api-auth/', include('rest_framework.urls')),
+
+    # API Documentation
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('api/docs/swagger/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('api/docs/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 ]
+
+# Uploaded church logos. In production serve /media/ from the web server or object storage.
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
