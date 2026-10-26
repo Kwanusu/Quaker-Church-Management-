@@ -121,14 +121,12 @@ def logout(request):
 @api_view(['GET', 'PATCH'])
 @permission_classes([IsAuthenticated])
 def me(request):
-    """Current user (GET), or update name / phone / email / email preferences (PATCH).
-    Changing the email address requires confirming the new one."""
+    """Current user (GET), or update username / name / phone / email preferences (PATCH).
+    The email address is read-only: it identifies the account."""
     if request.method == 'PATCH':
         serializer = ProfileUpdateSerializer(data=request.data, context={'request': request}, partial=True)
         serializer.is_valid(raise_exception=True)
-        email_changed = serializer.save()
-        if email_changed:
-            send_verification(request.user)
+        serializer.save()
     return Response(user_payload(request.user))
 
 

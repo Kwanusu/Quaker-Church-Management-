@@ -105,7 +105,6 @@ class ProfileUpdateSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=150, required=False, validators=[USERNAME_RULE])
     first_name = serializers.CharField(max_length=150, required=False)
     last_name = serializers.CharField(max_length=150, required=False, allow_blank=True)
-    email = serializers.EmailField(required=False)
     phone = serializers.CharField(max_length=30, required=False, allow_blank=True)
     email_announcements = serializers.BooleanField(required=False)
     email_reminders = serializers.BooleanField(required=False)
@@ -116,29 +115,23 @@ class ProfileUpdateSerializer(serializers.Serializer):
             raise serializers.ValidationError('That username is taken.')
         return value
 
-    def validate_email(self, value):
-        user = self.context['request'].user
-        if User.objects.filter(email__iexact=value).exclude(pk=user.pk).exists():
-            raise serializers.ValidationError('Another account already uses this email.')
-        return value.lower()
+    def validate(self, attrs):
+        # The email address is the account's unique identifier: it is set at sign-up and never edited here.
+        sent = self.initial_data.get('email')
+        if sent is not None and str(sent).strip().lower() != self.context['request'].user.email.lower():
+            raise serializers.ValidationError({'email': 'Your email address identifies your account and can’t be changed.'})
+        return attrs
 
     @transaction.atomic
     def save(self):
-        """Returns True if the email address changed (and so needs confirming again)."""
         user = self.context['request'].user
         data = self.validated_data
         profile = profile_of(user)
         for f in ('username', 'first_name', 'last_name'):
             if f in data:
                 setattr(user, f, data[f])
-        email_changed = 'email' in data and data['email'] != user.email.lower()
-        if email_changed:
-            user.email = data['email']
-            profile.email_verified = False
-            profile.email_verified_at = None
         user.save()
         for f in ('phone', 'email_announcements', 'email_reminders'):
             if f in data:
                 setattr(profile, f, data[f])
         profile.save()
-        return email_changed
