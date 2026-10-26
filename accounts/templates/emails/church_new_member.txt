@@ -1,0 +1,5 @@
+Hello {{ name }},
+
+{{ newcomer_name }} ({{ newcomer_email }}) has joined {{ church.name }} as an Attender.
+
+To give them a role (e.g. Member), open People: {{ manage_url }}

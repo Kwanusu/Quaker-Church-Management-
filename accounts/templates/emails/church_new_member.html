@@ -1,0 +1,9 @@
+{% extends "emails/base.html" %}
+{% block heading %}{{ church.name }}{% endblock %}
+{% block subheading %}Clerk’s desk{% endblock %}
+{% block content %}
+<p>Hello {{ name }},</p>
+<p><strong>{{ newcomer_name }}</strong> ({{ newcomer_email }}) has joined {{ church.name }} as an Attender.</p>
+{% include "emails/_button.html" with url=manage_url label="Open People" %}
+<p style="color:#566176;font-size:14px;">You get this because you are a Clerk of {{ church.name }}.</p>
+{% endblock %}

@@ -1,0 +1,1 @@
+About your request to join {{ platform_name }}

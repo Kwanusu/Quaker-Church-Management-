@@ -1,0 +1,10 @@
+{% extends "emails/base.html" %}
+{% block heading %}{{ church.name }}{% endblock %}
+{% block subheading %}You’re invited to be its Clerk{% endblock %}
+{% block content %}
+<p>Hello {{ name }},</p>
+<p>Good news: <strong>{{ church.name }}</strong> has been approved on {{ platform_name }}, and you’re invited to be its <strong>Clerk</strong>.</p>
+{% include "emails/_button.html" with url=url label="Accept and set up your church" %}
+<p>Your church’s address will be <a href="{{ church_address }}" style="color:#2a5a8c;">{{ church_address }}</a>.</p>
+<p style="color:#566176;font-size:14px;">The link works once and expires in {{ days }} days. If you weren’t expecting this, you can ignore it.</p>
+{% endblock %}

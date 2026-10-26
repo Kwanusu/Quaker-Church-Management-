@@ -1,0 +1,16 @@
+Hello {{ name }},
+
+You are now a platform admin for {{ platform_name }}. From the admin dashboard you can
+look after churches, people and their roles, and user accounts.
+
+Your username: {{ username }}
+{% if set_password_url %}
+First, choose your password (this link works for {{ invite_days }} days and only once):
+{{ set_password_url }}
+
+Then sign in and open the dashboard:
+{% else %}
+Sign in as usual and open the dashboard:
+{% endif %}{{ dashboard_url }}
+
+If you weren't expecting this, please reply and let us know.

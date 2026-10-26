@@ -1,0 +1,7 @@
+Hello {{ name }},
+
+Thank you for your interest in bringing {{ church_name }} onto {{ platform_name }}. We're not able to go ahead with the request at this time.
+{% if note %}
+{{ note }}
+{% endif %}
+You're welcome to reply to this email or apply again later.

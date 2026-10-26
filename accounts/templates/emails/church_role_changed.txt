@@ -1,0 +1,5 @@
+Hello {{ name }},
+
+Your role at {{ church.name }} is now: {{ role_label }}.
+{% if is_member %}You can now read and post in the church's messages: {{ church_url }}/fellowship{% endif %}
+{% if is_leader %}You can manage the church from: {{ church_url }}/manage{% endif %}

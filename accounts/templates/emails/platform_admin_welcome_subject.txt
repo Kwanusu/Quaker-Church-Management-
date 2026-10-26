@@ -1,0 +1,1 @@
+You’re a {{ platform_name }} platform admin

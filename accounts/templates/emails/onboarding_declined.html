@@ -1,0 +1,9 @@
+{% extends "emails/base.html" %}
+{% block heading %}Your request{% endblock %}
+{% block subheading %}{{ platform_name }}{% endblock %}
+{% block content %}
+<p>Hello {{ name }},</p>
+<p>Thank you for your interest in bringing <strong>{{ church_name }}</strong> onto {{ platform_name }}. We’re not able to go ahead with the request at this time.</p>
+{% if note %}<p style="border-left:3px solid #c9a227;padding-left:12px;">{{ note }}</p>{% endif %}
+<p>You’re welcome to reply to this email or apply again later.</p>
+{% endblock %}

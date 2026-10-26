@@ -1,0 +1,5 @@
+Hello {{ name }},
+
+Thank you for asking to bring {{ church_name }} onto {{ platform_name }}. We have your request and a member of our team will review it.
+
+You'll get an email at this address once it's been looked at. If we're happy to go ahead, it will contain a link to set up your church as its Clerk.

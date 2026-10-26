@@ -1,0 +1,8 @@
+{{ author_name }} posted in {{ church.name }} · Announcements:
+
+{{ text }}
+
+Read it online: {{ room_url }}
+
+—
+Stop announcement emails: {{ unsubscribe_url }}

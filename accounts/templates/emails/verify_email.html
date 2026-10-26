@@ -1,0 +1,8 @@
+{% extends "emails/base.html" %}
+{% block content %}
+<p>Hello {{ name }},</p>
+<p>Please confirm your email address for {{ platform_name }}.</p>
+{% include "emails/_button.html" with url=url label="Confirm my email" %}
+<p>The link works for 3 days. Once confirmed you can join churches, register your own and take part in messages.</p>
+<p style="color:#566176;font-size:14px;">If you didn’t create this account, you can ignore this email.</p>
+{% endblock %}

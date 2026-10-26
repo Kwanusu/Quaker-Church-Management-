@@ -1,0 +1,8 @@
+{% extends "emails/base.html" %}
+{% block heading %}Request received{% endblock %}
+{% block subheading %}{{ platform_name }}{% endblock %}
+{% block content %}
+<p>Hello {{ name }},</p>
+<p>Thank you for asking to bring <strong>{{ church_name }}</strong> onto {{ platform_name }}. We have your request and a member of our team will review it.</p>
+<p>You’ll get an email at this address once it’s been looked at. If we’re happy to go ahead, it will contain a link to set up your church as its Clerk.</p>
+{% endblock %}

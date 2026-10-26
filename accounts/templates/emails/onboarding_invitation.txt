@@ -1,0 +1,9 @@
+Hello {{ name }},
+
+Good news: {{ church.name }} has been approved on {{ platform_name }}, and you're invited to be its Clerk.
+
+Accept the invitation and set up your church:
+{{ url }}
+
+Your church's address will be {{ church_address }}
+The link works once and expires in {{ days }} days. If you weren't expecting this, you can ignore it.

@@ -1,0 +1,9 @@
+{% extends "emails/base.html" %}
+{% block heading %}{{ church.name }}{% endblock %}
+{% block subheading %}Announcement{% endblock %}
+{% block content %}
+<p style="color:#566176;font-size:14px;margin-top:0;">From <strong>{{ author_name }}</strong></p>
+<div style="border-left:4px solid #c9a227;padding:4px 0 4px 16px;white-space:pre-line;">{{ text }}</div>
+{% include "emails/_button.html" with url=room_url label="Read online" %}
+{% endblock %}
+{% block footer %}You get announcements as a member of {{ church.name }}. <a href="{{ unsubscribe_url }}" style="color:#2a5a8c;">Stop announcement emails</a>.{% endblock %}

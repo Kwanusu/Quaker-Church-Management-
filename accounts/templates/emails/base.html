@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{{ platform_name }}</title></head>
+<body style="margin:0;padding:0;background:#f4f6fa;font-family:Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#16202f;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6fa;padding:24px 12px;">
+    <tr><td align="center">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #dce3ee;">
+        <tr><td style="background:#1e4167;border-bottom:4px solid #c9a227;padding:18px 28px;">
+          <table role="presentation" cellpadding="0" cellspacing="0"><tr>
+            <td style="padding-right:14px;vertical-align:middle;"><img src="cid:{{ logo_cid }}" width="52" height="52" alt="{{ platform_name }}" style="display:block;border:0;border-radius:50%;background:#ffffff;"></td>
+            <td style="vertical-align:middle;">
+              <div style="font-family:Georgia,'Times New Roman',serif;font-size:20px;font-weight:bold;color:#ffffff;">{% block heading %}{{ platform_name }}{% endblock %}</div>
+              <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#e6c96b;margin-top:4px;">{% block subheading %}Religious Society of Friends{% endblock %}</div>
+            </td>
+          </tr></table>
+        </td></tr>
+        <tr><td style="padding:28px;font-size:16px;line-height:1.6;">
+          {% block content %}{% endblock %}
+        </td></tr>
+        <tr><td style="padding:20px 28px;background:#f7f9fc;border-top:1px solid #dce3ee;font-size:13px;color:#566176;line-height:1.5;">
+          <em style="font-family:Georgia,serif;color:#1e4167;">“{{ guiding_text }}”</em> — {{ guiding_ref }}<br>
+          {% block footer %}You received this because you have an account at <a href="{{ site_url }}" style="color:#2a5a8c;">{{ platform_name }}</a>.{% endblock %}
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>

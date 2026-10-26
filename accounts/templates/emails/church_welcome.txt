@@ -1,0 +1,8 @@
+Hello {{ name }},
+
+Welcome to {{ church.name }}! You have joined as an Attender.
+
+Visit the church page: {{ church_url }}
+Worship times: {{ church_url }}/worship
+
+The Clerk can make you a Member, which opens the church's messages to you.

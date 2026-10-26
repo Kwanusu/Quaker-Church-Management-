@@ -1,0 +1,9 @@
+{% extends "emails/base.html" %}
+{% block heading %}{{ church.name }}{% endblock %}
+{% block subheading %}{{ church.subtitle|default:"Friends Church (Quakers)" }}{% endblock %}
+{% block content %}
+<p>Hello {{ name }},</p>
+<p>Welcome to <strong>{{ church.name }}</strong>! You have joined as an <strong>Attender</strong>.</p>
+{% include "emails/_button.html" with url=church_url label="Visit the church page" %}
+<p>See <a href="{{ church_url }}/worship" style="color:#2a5a8c;">worship times</a>, the hymn books and this week’s query. The Clerk can make you a Member, which opens the church’s messages to you.</p>
+{% endblock %}

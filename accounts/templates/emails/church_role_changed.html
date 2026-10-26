@@ -1,0 +1,9 @@
+{% extends "emails/base.html" %}
+{% block heading %}{{ church.name }}{% endblock %}
+{% block subheading %}{{ church.subtitle|default:"Friends Church (Quakers)" }}{% endblock %}
+{% block content %}
+<p>Hello {{ name }},</p>
+<p>Your role at {{ church.name }} is now <strong>{{ role_label }}</strong>.</p>
+{% if is_leader %}{% include "emails/_button.html" with url=manage_url label="Open the Clerk’s desk" %}
+{% elif is_member %}{% include "emails/_button.html" with url=messages_url label="Open messages" %}{% endif %}
+{% endblock %}

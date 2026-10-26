@@ -1,0 +1,12 @@
+Hello {{ name }},
+
+{{ added_by }} has added you to the member register of {{ church.name }}{% if role_label %} as {{ role_label }}{% endif %}.
+{% if departments %}Departments: {{ departments|join:", " }}
+{% endif %}
+{% if has_account %}Open the church page: {{ church_url }}
+{% else %}To use the church's page on {{ platform_name }} (worship times, hymn books, messages{% if departments %} and your department{% endif %}), create a free account with this email address:
+{{ register_url }}
+
+Once you confirm your email, you'll be linked to {{ church.name }} automatically.
+{% endif %}
+If you don't know {{ church.name }}, you can ignore this email.

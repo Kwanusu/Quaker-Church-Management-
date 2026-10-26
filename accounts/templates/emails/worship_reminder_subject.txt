@@ -1,0 +1,1 @@
+Tomorrow: {{ event.title }} at {{ church.name }}

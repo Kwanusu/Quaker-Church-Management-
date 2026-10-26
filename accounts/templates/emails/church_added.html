@@ -1,0 +1,15 @@
+{% extends "emails/base.html" %}
+{% block heading %}{{ church.name }}{% endblock %}
+{% block subheading %}{{ church.subtitle|default:"Friends Church (Quakers)" }}{% endblock %}
+{% block content %}
+<p>Hello {{ name }},</p>
+<p>{{ added_by }} has added you to the member register of <strong>{{ church.name }}</strong>{% if role_label %} as <strong>{{ role_label }}</strong>{% endif %}.</p>
+{% if departments %}<p>Departments: {{ departments|join:", " }}</p>{% endif %}
+{% if has_account %}
+{% include "emails/_button.html" with url=church_url label="Open the church page" %}
+{% else %}
+<p>To use the church’s page (worship times, hymn books, messages{% if departments %} and your department{% endif %}), create a free account with this email address. Once you confirm it, you’ll be linked to {{ church.name }} automatically.</p>
+{% include "emails/_button.html" with url=register_url label="Create your account" %}
+{% endif %}
+<p style="color:#566176;font-size:14px;">If you don’t know {{ church.name }}, you can ignore this email.</p>
+{% endblock %}

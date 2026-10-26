@@ -1,0 +1,11 @@
+Hello {{ name }},
+
+Please confirm your email address for {{ platform_name }} by opening this link:
+
+{{ url }}
+
+The link works for 3 days. Once confirmed you can join churches, register your own and take part in messages.
+
+If you didn’t create this account, you can ignore this email.
+
+“{{ guiding_text }}” — {{ guiding_ref }}

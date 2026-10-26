@@ -1,0 +1,16 @@
+Hello {{ name }},
+
+A reminder of tomorrow's gathering at {{ church.name }}:
+
+{{ event.title }}
+{{ when }}{% if event.location %}
+{{ event.location }}{% endif %}
+{% if event.description %}
+{{ event.description }}
+{% endif %}{% if watch_url %}
+Join online: {{ watch_url }}{% endif %}
+
+Details: {{ church_url }}/worship
+
+—
+Stop worship reminders: {{ unsubscribe_url }}

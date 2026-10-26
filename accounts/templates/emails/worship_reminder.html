@@ -1,0 +1,16 @@
+{% extends "emails/base.html" %}
+{% block heading %}{{ church.name }}{% endblock %}
+{% block subheading %}Tomorrow’s gathering{% endblock %}
+{% block content %}
+<p>Hello {{ name }},</p>
+<p>A reminder of tomorrow’s gathering:</p>
+<table role="presentation" cellpadding="0" cellspacing="0" style="border:1px solid #dce3ee;border-radius:10px;width:100%;">
+  <tr><td style="padding:16px 18px;">
+    <div style="font-family:Georgia,serif;font-size:19px;font-weight:bold;color:#1e4167;">{{ event.title }}</div>
+    <div style="color:#566176;margin-top:4px;">{{ when }}{% if event.location %} · {{ event.location }}{% endif %}</div>
+    {% if event.description %}<p style="margin:10px 0 0;">{{ event.description }}</p>{% endif %}
+  </td></tr>
+</table>
+{% if watch_url %}{% include "emails/_button.html" with url=watch_url label="Join online on YouTube" %}{% else %}<p><a href="{{ church_url }}/worship" style="color:#2a5a8c;">See all worship times</a></p>{% endif %}
+{% endblock %}
+{% block footer %}You get reminders as a member of {{ church.name }}. <a href="{{ unsubscribe_url }}" style="color:#2a5a8c;">Stop worship reminders</a>.{% endblock %}

@@ -1,0 +1,9 @@
+{% extends "emails/base.html" %}
+{% block heading %}New onboarding request{% endblock %}
+{% block subheading %}{{ platform_name }}{% endblock %}
+{% block content %}
+<p><strong>{{ church_name }}</strong>{% if town %} ({{ town }}){% endif %} has asked to be onboarded.</p>
+<p>Contact: {{ contact_name }} &lt;{{ contact_email }}&gt;</p>
+{% if message %}<p style="border-left:3px solid #c9a227;padding-left:12px;">{{ message }}</p>{% endif %}
+{% include "emails/_button.html" with url=review_url label="Review the request" %}
+{% endblock %}

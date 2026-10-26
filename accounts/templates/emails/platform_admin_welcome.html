@@ -1,0 +1,14 @@
+{% extends "emails/base.html" %}
+{% block content %}
+<p>Hello {{ name }},</p>
+<p>You are now a <strong>platform admin</strong> for {{ platform_name }}. From the admin dashboard you can look after churches, people and their roles, and user accounts.</p>
+<p>Your username: <strong>{{ username }}</strong></p>
+{% if set_password_url %}
+<p>First, choose your password. The link works for {{ invite_days }} days and only once.</p>
+{% include "emails/_button.html" with url=set_password_url label="Choose your password" %}
+<p>Then sign in and open the dashboard: <a href="{{ dashboard_url }}" style="color:#2a5a8c;">{{ dashboard_url }}</a></p>
+{% else %}
+{% include "emails/_button.html" with url=dashboard_url label="Open the admin dashboard" %}
+{% endif %}
+<p style="color:#566176;font-size:14px;">If you weren’t expecting this, please reply and let us know.</p>
+{% endblock %}

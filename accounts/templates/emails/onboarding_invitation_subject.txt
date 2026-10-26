@@ -1,0 +1,1 @@
+{{ church.name }} is ready: set it up on {{ platform_name }}

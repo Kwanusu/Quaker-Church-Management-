@@ -1,0 +1,1 @@
+You are now {{ role_label }} at {{ church.name }}

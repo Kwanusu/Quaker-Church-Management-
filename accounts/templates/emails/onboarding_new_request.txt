@@ -1,0 +1,7 @@
+{{ church_name }}{% if town %} ({{ town }}){% endif %} has asked to be onboarded.
+
+Contact: {{ contact_name }} <{{ contact_email }}>
+{% if message %}
+Message: {{ message }}
+{% endif %}
+Review it: {{ review_url }}
