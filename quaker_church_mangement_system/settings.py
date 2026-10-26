@@ -10,6 +10,7 @@ import re
 from datetime import timedelta
 from pathlib import Path
 
+import dj_database_url
 from django.core.exceptions import ImproperlyConfigured
 
 try:
@@ -47,6 +48,8 @@ if not SECRET_KEY:
 FIELD_ENCRYPTION_KEY = os.getenv('FIELD_ENCRYPTION_KEY', '')
 
 ALLOWED_HOSTS = env_list('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1' if DEBUG else '')
+if os.getenv('RENDER_EXTERNAL_HOSTNAME'):  # set by Render for every web service
+    ALLOWED_HOSTS = [*ALLOWED_HOSTS, os.environ['RENDER_EXTERNAL_HOSTNAME']]
 
 
 # ---------------------------------------------------------------------------
@@ -81,6 +84,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # static files in production
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -138,7 +142,15 @@ else:
 # ---------------------------------------------------------------------------
 # Database
 # ---------------------------------------------------------------------------
-if os.getenv('POSTGRES_DB'):
+if os.getenv('DATABASE_URL'):
+    # One connection string for any hosted Postgres, e.g. Supabase:
+    #   postgresql://postgres.<ref>:<password>@aws-0-<region>.pooler.supabase.com:5432/postgres?sslmode=require
+    DATABASES = {
+        'default': dj_database_url.parse(os.environ['DATABASE_URL'], conn_max_age=60, conn_health_checks=True),
+    }
+    # Supabase's transaction pooler (port 6543) can't hold server-side cursors; harmless to disable everywhere.
+    DATABASES['default']['DISABLE_SERVER_SIDE_CURSORS'] = True
+elif os.getenv('POSTGRES_DB'):
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
@@ -193,6 +205,36 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # Uploaded files (church logos)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+STORAGES = {
+    'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+    'staticfiles': {'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage'},
+}
+if not DEBUG:
+    STORAGES['staticfiles'] = {'BACKEND': 'whitenoise.storage.CompressedStaticFilesStorage'}
+
+# Uploaded files (logos, avatars) must not live on the web server's disk in production: it is wiped on every deploy.
+# Set SUPABASE_PROJECT_REF, SUPABASE_BUCKET, SUPABASE_S3_KEY_ID and SUPABASE_S3_SECRET to use Supabase Storage
+# (a public bucket, reached through its S3-compatible API).
+SUPABASE_PROJECT_REF = os.getenv('SUPABASE_PROJECT_REF', '')
+if SUPABASE_PROJECT_REF and os.getenv('SUPABASE_BUCKET'):
+    _bucket = os.environ['SUPABASE_BUCKET']
+    STORAGES['default'] = {
+        'BACKEND': 'storages.backends.s3.S3Storage',
+        'OPTIONS': {
+            'bucket_name': _bucket,
+            'endpoint_url': f'https://{SUPABASE_PROJECT_REF}.supabase.co/storage/v1/s3',
+            'access_key': os.getenv('SUPABASE_S3_KEY_ID', ''),
+            'secret_key': os.getenv('SUPABASE_S3_SECRET', ''),
+            'region_name': os.getenv('SUPABASE_REGION', 'us-east-1'),
+            'addressing_style': 'path',
+            'signature_version': 's3v4',
+            'querystring_auth': False,      # the bucket is public: plain, cacheable URLs
+            'file_overwrite': False,
+            'default_acl': None,
+            'custom_domain': f'{SUPABASE_PROJECT_REF}.supabase.co/storage/v1/object/public/{_bucket}',
+        },
+    }
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024
 
 
@@ -327,6 +369,7 @@ CHAT_MAX_MESSAGES_PER_MINUTE = 30
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SECURE_SSL_REDIRECT = env_bool('DJANGO_SECURE_SSL_REDIRECT', True)
+    SECURE_REDIRECT_EXEMPT = [r'^health/$']  # the platform's health probe is plain HTTP
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     SECURE_HSTS_SECONDS = int(os.getenv('DJANGO_HSTS_SECONDS', '3600'))
