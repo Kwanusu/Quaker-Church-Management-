@@ -1,3 +1,1 @@
-from django.db import models
-
-# Create your models here.
+# Core has no models; it serves the API root and health check.
